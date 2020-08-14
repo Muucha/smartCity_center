@@ -4,28 +4,25 @@ radio.onReceivedValue(function (name, value) {
         led.toggle(0, 0)
     } else if (name == "hanako") {
         hanako = value
-        led.toggle(0, 1)
+        led.toggle(1, 0)
     }
 })
-let _switch = 0
-let goukei = 0
+let average = 0
 let hanako = 0
 let taro = 0
 radio.setGroup(1)
 basic.forever(function () {
-    goukei = taro + hanako
+    average = (taro + hanako) / 2
     serial.writeValue("taro", taro)
     serial.writeValue("hanako", hanako)
-    serial.writeValue("goukei", goukei)
+    serial.writeValue("average", average)
+    basic.pause(1000)
 })
 basic.forever(function () {
-    if (goukei < 50 && _switch == 0) {
-        _switch = 1
-        radio.sendValue("switch", 1)
-        music.playTone(523, music.beat(BeatFraction.Eighth))
-    } else if (goukei >= 50 && _switch == 1) {
-        _switch = 0
+    if (average < 50) {
+        radio.sendValue("led", 1)
+    } else {
         radio.sendValue("switch", 0)
-        music.playTone(262, music.beat(BeatFraction.Eighth))
     }
+    basic.pause(1000)
 })
